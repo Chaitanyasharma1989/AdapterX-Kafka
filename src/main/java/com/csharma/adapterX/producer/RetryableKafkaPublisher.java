@@ -31,30 +31,28 @@ public class RetryableKafkaPublisher <T> {
         this.retryTemplate = createRetryTemplate(properties.getRetry());
     }
 
-    @Retryable(
-            retryFor = { KafkaProducerException.class },
-            maxAttemptsExpression = "${kafka.producer.retry.max-attempts}",
-            backoff = @Backoff(
-                    delayExpression = "${kafka.producer.retry.initial-interval}",
-                    multiplierExpression = "${kafka.producer.retry.multiplier}",
-                    maxDelayExpression = "${kafka.producer.retry.max-interval}"
-            )
-    )
     public void sendWithRetry(String topic, T message) throws KafkaProducerException {
-        producerTemplate.sendSync(topic, message);
+        retryTemplate.execute(context -> {
+            try {
+                producerTemplate.sendSync(topic, message);
+                return null;
+            } catch (Exception e) {
+                log.warn("Failed to publish message to topic : {}, attempt : {}: {}", topic, context.getRetryCount(), e.getMessage());
+                throw new KafkaProducerException("Failed to publish message", e);
+            }
+        });
     }
 
-    @Retryable(
-            retryFor = { KafkaProducerException.class },
-            maxAttemptsExpression = "${kafka.producer.retry.max-attempts}",
-            backoff = @Backoff(
-                    delayExpression = "${kafka.producer.retry.initial-interval}",
-                    multiplierExpression = "${kafka.producer.retry.multiplier}",
-                    maxDelayExpression = "${kafka.producer.retry.max-interval}"
-            )
-    )
     public void sendWithRetry(String topic, String key, T message) throws KafkaProducerException {
-        producerTemplate.sendSync(topic, key, message);
+        retryTemplate.execute(context -> {
+            try {
+                producerTemplate.sendSync(topic, key,message);
+                return null;
+            } catch (Exception e) {
+                log.warn("Failed to publish message to topic : {}, attempt : {} : {}", topic, context.getRetryCount(), e.getMessage());
+                throw new KafkaProducerException("Failed to publish message", e);
+            }
+        });
     }
 
     public void publishBulkWithRetry(String topic, List<T> messages) {

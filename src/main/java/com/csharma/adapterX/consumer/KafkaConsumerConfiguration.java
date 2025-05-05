@@ -1,7 +1,6 @@
 package com.csharma.adapterX.consumer;
 
 
-import com.csharma.adapterX.consumer.errorhandler.CustomErrorHandler;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +50,6 @@ public class KafkaConsumerConfiguration {
         factory.setConcurrency(properties.getConcurrency());
         factory.setBatchListener(properties.isBatchListener());
         factory.getContainerProperties().setPollTimeout(properties.getPollTimeoutMs());
-        factory.setCommonErrorHandler(new CustomErrorHandler());
         return factory;
     }
 }
