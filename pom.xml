@@ -8,6 +8,10 @@
 
     <name>AdapterX</name>
     <url>http://maven.apache.org</url>
+    <modules>
+        <module>adapterx-consumer</module>
+        <module>adapterx-producer</module>
+    </modules>
 
     <artifactId>adapterx-kafka</artifactId>
 
